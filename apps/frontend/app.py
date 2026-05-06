@@ -1,6 +1,6 @@
 import os
 import requests
-from flask import Flask, render_template_string
+from flask import Flask, render_template_string, request
 
 app = Flask(__name__)
 
@@ -196,10 +196,23 @@ def index():
     return render_template_string(HTML_TEMPLATE)
 
 
+PROPAGATED_HEADERS = [
+    "x-version",
+    "x-request-id",
+    "x-b3-traceid",
+    "x-b3-spanid",
+    "x-b3-parentspanid",
+    "x-b3-sampled",
+    "x-b3-flags",
+    "x-ot-span-context",
+]
+
+
 @app.route("/api/backend")
 def proxy_backend():
     try:
-        resp = requests.get(f"{BACKEND_URL}/api/data", timeout=5)
+        headers = {h: request.headers[h] for h in PROPAGATED_HEADERS if h in request.headers}
+        resp = requests.get(f"{BACKEND_URL}/api/data", headers=headers, timeout=5)
         return resp.json()
     except requests.exceptions.Timeout:
         return {"version": "error", "color": "red", "message": "Backend timeout!", "hostname": "N/A", "headers": {}}, 504
