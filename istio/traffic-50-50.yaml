@@ -1,0 +1,20 @@
+# A/B testing: 50% to v1, 50% to v2
+# Use case: Equal traffic split for comparing two versions
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: backend-routing
+  namespace: istio-demo
+spec:
+  hosts:
+    - backend
+  http:
+    - route:
+        - destination:
+            host: backend
+            subset: v1
+          weight: 50
+        - destination:
+            host: backend
+            subset: v2
+          weight: 50

@@ -1,0 +1,16 @@
+# Route 100% of traffic to backend v1
+# Use case: Production baseline — all traffic goes to the stable version
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: backend-routing
+  namespace: istio-demo
+spec:
+  hosts:
+    - backend
+  http:
+    - route:
+        - destination:
+            host: backend
+            subset: v1
+          weight: 100

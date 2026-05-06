@@ -1,0 +1,23 @@
+# Header-based routing: requests with "x-version: v2" go to v2, everything else to v1
+# Use case: Internal testing — QA team can test v2 while users still see v1
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: backend-routing
+  namespace: istio-demo
+spec:
+  hosts:
+    - backend
+  http:
+    - match:
+        - headers:
+            x-version:
+              exact: v2
+      route:
+        - destination:
+            host: backend
+            subset: v2
+    - route:
+        - destination:
+            host: backend
+            subset: v1

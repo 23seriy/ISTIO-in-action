@@ -1,0 +1,25 @@
+# Fault injection: Add 3-second delay to 50% of requests + 10% HTTP 503 errors
+# Use case: Testing application resilience and error handling
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: backend-routing
+  namespace: istio-demo
+spec:
+  hosts:
+    - backend
+  http:
+    - fault:
+        delay:
+          percentage:
+            value: 50.0
+          fixedDelay: 3s
+        abort:
+          percentage:
+            value: 10.0
+          httpStatus: 503
+      route:
+        - destination:
+            host: backend
+            subset: v1
+          weight: 100

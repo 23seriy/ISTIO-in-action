@@ -1,0 +1,20 @@
+# Canary deployment: 80% to v1, 20% to v2
+# Use case: Gradually rolling out a new version to a small percentage of users
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: backend-routing
+  namespace: istio-demo
+spec:
+  hosts:
+    - backend
+  http:
+    - route:
+        - destination:
+            host: backend
+            subset: v1
+          weight: 80
+        - destination:
+            host: backend
+            subset: v2
+          weight: 20

@@ -1,0 +1,21 @@
+# Authorization policy: Only frontend can call backend
+# Use case: Zero-trust security — enforce service-to-service access control
+apiVersion: security.istio.io/v1
+kind: AuthorizationPolicy
+metadata:
+  name: backend-allow-frontend-only
+  namespace: istio-demo
+spec:
+  selector:
+    matchLabels:
+      app: backend
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals:
+              - "cluster.local/ns/istio-demo/sa/default"
+      to:
+        - operation:
+            methods: ["GET"]
+            paths: ["/api/*", "/health"]
