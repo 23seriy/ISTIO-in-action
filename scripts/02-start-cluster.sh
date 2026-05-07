@@ -44,10 +44,24 @@ info "Verifying Istio installation..."
 kubectl -n istio-system wait --for=condition=ready pod -l app=istiod --timeout=120s
 kubectl -n istio-system wait --for=condition=ready pod -l app=istio-ingressgateway --timeout=120s
 
+# Install observability addons (not bundled with the demo profile)
+ISTIO_VERSION="release-1.24"
+info "Installing observability addons (Kiali, Prometheus, Grafana, Jaeger)..."
+kubectl apply -f "https://raw.githubusercontent.com/istio/istio/${ISTIO_VERSION}/samples/addons/prometheus.yaml"
+kubectl apply -f "https://raw.githubusercontent.com/istio/istio/${ISTIO_VERSION}/samples/addons/kiali.yaml"
+kubectl apply -f "https://raw.githubusercontent.com/istio/istio/${ISTIO_VERSION}/samples/addons/grafana.yaml"
+kubectl apply -f "https://raw.githubusercontent.com/istio/istio/${ISTIO_VERSION}/samples/addons/jaeger.yaml"
+
+info "Waiting for addons to be ready..."
+kubectl -n istio-system wait --for=condition=ready pod -l app=kiali --timeout=120s
+kubectl -n istio-system wait --for=condition=ready pod -l app=prometheus --timeout=120s
+kubectl -n istio-system wait --for=condition=ready pod -l app=grafana --timeout=120s
+kubectl -n istio-system wait --for=condition=ready pod -l app=jaeger --timeout=120s
+
 info "Istio components:"
 kubectl get pods -n istio-system
 
 echo ""
-info "Cluster and Istio are ready!"
+info "Cluster and Istio are ready (with observability dashboards)!"
 echo ""
 echo "Next step: Run ./scripts/03-deploy-app.sh"
