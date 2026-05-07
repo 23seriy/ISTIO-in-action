@@ -54,8 +54,8 @@ kubectl apply -f "https://raw.githubusercontent.com/istio/istio/${ISTIO_VERSION}
 
 info "Waiting for addons to be ready..."
 kubectl -n istio-system wait --for=condition=ready pod -l app=kiali --timeout=120s
-kubectl -n istio-system wait --for=condition=ready pod -l app=prometheus --timeout=120s
-kubectl -n istio-system wait --for=condition=ready pod -l app=grafana --timeout=120s
+kubectl -n istio-system wait --for=condition=ready pod -l app.kubernetes.io/name=prometheus --timeout=120s
+kubectl -n istio-system wait --for=condition=ready pod -l app.kubernetes.io/name=grafana --timeout=120s
 kubectl -n istio-system wait --for=condition=ready pod -l app=jaeger --timeout=120s
 
 info "Istio components:"
