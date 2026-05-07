@@ -7,6 +7,8 @@ A hands-on project demonstrating Istio service mesh capabilities on a local Mini
 ![Minikube](https://img.shields.io/badge/Minikube-local-F7B93E?logo=kubernetes&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
 
+> 📝 **Read the full walkthrough on Medium:** [Istio in Action: A Hands-On Guide to Service Mesh on Your Laptop](https://medium.com/@sergeiolshanetski/istio-in-action-a-hands-on-guide-to-service-mesh-on-your-laptop-e5ccac34262e)
+
 ## 🏗️ Architecture
 
 ```
