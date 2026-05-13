@@ -222,7 +222,14 @@ def proxy_backend():
 
 @app.route("/health")
 def health():
-    return {"status": "healthy", "service": "frontend"}
+    try:
+        resp = requests.get(f"{BACKEND_URL}/health", timeout=2)
+        backend_ok = resp.status_code == 200
+    except Exception:
+        backend_ok = False
+    status = "healthy" if backend_ok else "degraded"
+    code = 200 if backend_ok else 503
+    return {"status": status, "service": "frontend", "backend": backend_ok}, code
 
 
 if __name__ == "__main__":

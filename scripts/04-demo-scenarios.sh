@@ -29,9 +29,9 @@ send_requests() {
         resp=$(curl -s "$FRONTEND_URL/api/backend" 2>/dev/null || echo '{"version":"error"}')
         version=$(echo "$resp" | python3 -c "import sys,json; print(json.load(sys.stdin).get('version','error'))" 2>/dev/null || echo "error")
         case $version in
-            v1) ((v1++)) ;;
-            v2) ((v2++)) ;;
-            *)  ((errors++)) ;;
+            v1) v1=$((v1+1)) ;;
+            v2) v2=$((v2+1)) ;;
+            *)  errors=$((errors+1)) ;;
         esac
     done
     echo -e "  Results: ${BLUE}v1=$v1${NC} | ${GREEN}v2=$v2${NC} | ${RED}errors=$errors${NC} (out of $count requests)"
@@ -122,9 +122,49 @@ echo "➡️  Expected: Some delays and ~10% errors"
 wait_for_user
 
 # ─────────────────────────────────────────────
-# Scenario 6: mTLS verification
+# Scenario 6: Circuit breaker
 # ─────────────────────────────────────────────
-header "Scenario 6: Mutual TLS (mTLS)"
+header "Scenario 6: Circuit Breaker"
+echo "Limiting the backend to 1 concurrent connection."
+echo "Excess requests will be rejected immediately (503) instead of overloading."
+echo "Use case: Prevent cascading failures when a service is slow."
+
+# Reset routing to v1-only first
+kubectl apply -f "$PROJECT_DIR/istio/traffic-v1-only.yaml"
+kubectl apply -f "$PROJECT_DIR/istio/circuit-breaker.yaml"
+sleep 2
+info "Sending 20 rapid requests (some will be rejected)..."
+send_requests 20
+echo ""
+echo "➡️  Expected: Some errors from the circuit breaker rejecting excess connections"
+
+# Restore normal destination rule
+kubectl apply -f "$PROJECT_DIR/istio/destination-rule.yaml"
+wait_for_user
+
+# ─────────────────────────────────────────────
+# Scenario 7: Retry policy
+# ─────────────────────────────────────────────
+header "Scenario 7: Retry Policy"
+echo "Applying automatic retries: 3 attempts with 2s per-try timeout."
+echo "Use case: Handle transient failures without changing application code."
+kubectl apply -f "$PROJECT_DIR/istio/traffic-v1-only.yaml"
+kubectl apply -f "$PROJECT_DIR/istio/retry-policy.yaml"
+sleep 2
+info "Sending 10 requests (retries happen transparently if any fail)..."
+send_requests 10
+echo ""
+echo "➡️  Istio retries failed requests automatically — the app never sees transient errors."
+
+# Restore default routing
+kubectl apply -f "$PROJECT_DIR/istio/traffic-v1-only.yaml"
+kubectl apply -f "$PROJECT_DIR/istio/destination-rule.yaml"
+wait_for_user
+
+# ─────────────────────────────────────────────
+# Scenario 8: mTLS verification
+# ─────────────────────────────────────────────
+header "Scenario 8: Mutual TLS (mTLS)"
 echo "Verifying that all traffic between services is encrypted."
 
 # Reset to normal routing first
@@ -143,9 +183,9 @@ echo "➡️  All service-to-service traffic is now encrypted with mTLS"
 wait_for_user
 
 # ─────────────────────────────────────────────
-# Scenario 7: Authorization policy
+# Scenario 9: Authorization policy
 # ─────────────────────────────────────────────
-header "Scenario 7: Authorization Policy"
+header "Scenario 9: Authorization Policy"
 echo "Applying policy: Only the frontend service can call the backend."
 kubectl apply -f "$PROJECT_DIR/istio/authorization-policy.yaml"
 sleep 3

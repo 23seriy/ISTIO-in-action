@@ -62,6 +62,12 @@ kubectl apply -f "$PROJECT_DIR/istio/destination-rule.yaml"
 info "Applying default routing (100% to v1)..."
 kubectl apply -f "$PROJECT_DIR/istio/traffic-v1-only.yaml"
 
+# Restart deployments so rebuilt images are picked up on redeploy
+info "Restarting deployments to pick up latest images..."
+kubectl rollout restart deployment/backend-v1 -n istio-demo
+kubectl rollout restart deployment/backend-v2 -n istio-demo
+kubectl rollout restart deployment/frontend -n istio-demo
+
 # Wait for pods
 info "Waiting for pods to be ready..."
 kubectl -n istio-demo wait --for=condition=ready pod -l app=backend --timeout=120s

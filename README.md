@@ -3,7 +3,7 @@
 A hands-on project demonstrating Istio service mesh capabilities on a local Minikube cluster. Built with simple Python microservices to showcase traffic management, security, observability, and resilience features — all running on your laptop.
 
 ![Istio](https://img.shields.io/badge/Istio-1.24-466BB0?logo=istio&logoColor=white)
-![Kubernetes](https://img.shields.io/badge/Kubernetes-1.30-326CE5?logo=kubernetes&logoColor=white)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-1.30+-326CE5?logo=kubernetes&logoColor=white)
 ![Minikube](https://img.shields.io/badge/Minikube-local-F7B93E?logo=kubernetes&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
 
@@ -47,6 +47,13 @@ A hands-on project demonstrating Istio service mesh capabilities on a local Mini
 | **Observability** | Visualize traffic, traces, and metrics | Kiali, Jaeger, Grafana dashboards |
 
 ## 🚀 Quick Start
+
+### Step 0: Clone the Repository
+
+```bash
+git clone https://github.com/23seriy/istio-in-action.git
+cd istio-in-action
+```
 
 ### Prerequisites
 
@@ -179,7 +186,7 @@ Only the frontend service is allowed to call the backend. Any other service in t
 
 ## 📊 Observability Dashboards
 
-Istio's demo profile includes Kiali, Grafana, and Jaeger out of the box:
+The setup script installs Kiali, Grafana, and Jaeger as addons alongside Istio:
 
 ```bash
 # Interactive menu
@@ -238,8 +245,7 @@ istio-in-action/
 │   ├── 04-demo-scenarios.sh
 │   ├── 05-teardown.sh
 │   └── open-dashboards.sh
-└── docs/
-    └── screenshots/       # Add your screenshots here
+└── .gitignore
 ```
 
 ## 🧹 Teardown
